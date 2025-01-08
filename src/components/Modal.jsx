@@ -12,27 +12,57 @@ export default function Modal({
   title,
   contentText,
   handleContinue,
+  handleClose,
 }) {
-  return (
-    <Dialog open={open}>
-      {/*dialog container*/}
-      <DialogTitle>{title}</DialogTitle>
-      <DialogContent>
-        {/* Main body of modal/dialog */}
-        <DialogContentText>
-          {/* main text */}
-          {contentText}
-        </DialogContentText>
-        {children} {/* Other content */}
-      </DialogContent>
-      <DialogActions>
-        {/* Dialog action buttons */}
-        {/* Force users to make input without option to cancel */}
-        {/* <Button onClick={handleClose}>Cancel</Button> */}
-        <Button onClick={handleContinue}>Continue</Button>
-      </DialogActions>
-    </Dialog>
-  );
+  let content;
+  if (handleClose) {
+    content = (
+      <div>
+        <Dialog open={open}>
+          {/*dialog container*/}
+          <DialogTitle>{title}</DialogTitle>
+          <DialogContent>
+            {/* Main body of modal/dialog */}
+            <DialogContentText>
+              {/* main text */}
+              {contentText}
+            </DialogContentText>
+            {children} {/* Other content */}
+          </DialogContent>
+          <DialogActions>
+            {/* Dialog action buttons */}
+            {/* Force users to make input without option to cancel */}
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button onClick={handleContinue}>Continue</Button>
+          </DialogActions>
+        </Dialog>
+      </div>
+    );
+  } else {
+    content = (
+      <div>
+        <Dialog open={open}>
+          {/*dialog container*/}
+          <DialogTitle>{title}</DialogTitle>
+          <DialogContent>
+            {/* Main body of modal/dialog */}
+            <DialogContentText>
+              {/* main text */}
+              {contentText}
+            </DialogContentText>
+            {children} {/* Other content */}
+          </DialogContent>
+          <DialogActions>
+            {/* Dialog action buttons */}
+            {/* Force users to make input without option to cancel */}
+            <Button onClick={handleContinue}>Continue</Button>
+          </DialogActions>
+        </Dialog>
+        ;
+      </div>
+    );
+  }
+  return <div>{content}</div>;
 }
 Modal.propTypes = {
   open: PropTypes.bool,
@@ -40,4 +70,5 @@ Modal.propTypes = {
   title: PropTypes.string,
   contentText: PropTypes.string,
   handleContinue: PropTypes.func,
+  handleClose: PropTypes.func,
 };

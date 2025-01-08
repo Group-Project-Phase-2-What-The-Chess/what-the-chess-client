@@ -14,7 +14,7 @@ export default function Homepage() {
               </h1>
             </div>
             <div className="py-2">
-              <NavLink to="/game">
+              <NavLink to="/main-menu">
                 <button className="rounded-md font-semibold text-gray-900 bg-yellow-500 w-48 py-2">
                   Play
                 </button>

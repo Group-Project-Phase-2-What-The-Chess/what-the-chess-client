@@ -1,25 +1,43 @@
 import { TextField } from "@mui/material";
 import Modal from "../components/Modal";
-import { Socket } from "socket.io-client";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { socket } from "../utils/socketio";
+import { GameContext } from "../contexts/game.context";
+import { useNavigate } from "react-router";
 
-export default function Homepage() {
+export default function MainMenu() {
   const [openModalJoinRoom, setOpenModalJoinRoom] = useState(false);
   const [roomInput, setRoomInput] = useState(""); // input state
   const [roomError, setRoomError] = useState("");
   const [username, setUsername] = useState("");
   const [usernameSubmitted, setUsernameSubmitted] = useState(false);
-
-  const [room, setRoom] = useState("");
-  const [orientation, setOrientation] = useState("");
-  const [players, setPlayers] = useState([]);
+  const { setRoom, setPlayers, setOrientation } = useContext(GameContext);
+  const navigate = useNavigate();
 
   const handleCreateRoom = () => {
     socket.emit("createRoom", (r) => {
       console.log(r);
       setRoom(r);
       setOrientation("white");
+      navigate("/ingame");
+    });
+  };
+
+  const handleContinueJoinRoom = () => {
+    if (!roomInput) return;
+
+    socket.emit("joinRoom", { roomId: roomInput }, (response) => {
+      if (response.error) {
+        return setRoomError(response.message); // Menangani error jika ada
+      }
+
+      console.log("response:", response);
+      // Jika berhasil, set data ke context
+      setRoom(response?.roomId);
+      setPlayers(response?.players);
+      setOrientation("black"); // Misalnya set orientation menjadi "black"
+      setOpenModalJoinRoom(false);
+      navigate("/ingame");
     });
   };
 
@@ -27,11 +45,11 @@ export default function Homepage() {
     <div>
       <Modal
         open={!usernameSubmitted}
-        title="Pick a username"
-        contentText="Please select a username"
+        title="Enter Username"
+        contentText="Please enter your username"
         handleContinue={() => {
           if (!username) return;
-          Socket.emit("username", username);
+          socket.emit("username", username);
           setUsernameSubmitted(true);
         }}
       >
@@ -55,17 +73,7 @@ export default function Homepage() {
         handleClose={() => setOpenModalJoinRoom(false)}
         title="Code Room"
         contentText="Enter a valid room ID to join the room"
-        handleContinue={() => {
-          if (!roomInput) return;
-          socket.emit("joinRoom", { roomId: roomInput }, (r) => {
-            if (r.error) return setRoomError(r.message);
-            console.log("response:", r);
-            setRoom(r?.roomId);
-            setPlayers(r?.players);
-            setOrientation("black");
-            setOpenModalJoinRoom(false);
-          });
-        }}
+        handleContinue={handleContinueJoinRoom}
       >
         <TextField
           autoFocus
