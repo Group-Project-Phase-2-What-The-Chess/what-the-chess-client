@@ -1,17 +1,40 @@
-import { useState } from "react";
+import { TextField } from "@mui/material";
 import Modal from "../components/Modal";
+import { Socket } from "socket.io-client";
+import { useState } from "react";
 
 export default function Homepage() {
-  const [isPlayModalOpen, setIsPlayModalOpen] = useState(false);
+  const [username, setUsername] = useState("");
 
-  const handleClosePlayModal = () => {
-    setIsPlayModalOpen(false);
-  };
-  const handleOpenPlayModal = () => {
-    setIsPlayModalOpen(true);
-  };
+  // indicates if a username has been submitted
+  const [usernameSubmitted, setUsernameSubmitted] = useState(false);
   return (
     <div>
+      <Modal
+        open={!usernameSubmitted} // leave open if username has not been selected
+        title="Pick a username" // Title of dialog
+        contentText="Please select a username" // content text of dialog
+        handleContinue={() => {
+          // fired when continue is clicked
+          if (!username) return; // if username hasn't been entered, do nothing
+          Socket.emit("username", username); // emit a websocket event called "username" with the username as data
+          setUsernameSubmitted(true); // indicate that username has been submitted
+        }}
+      >
+        <TextField // Input
+          autoFocus // automatically set focus on input (make it active).
+          margin="dense"
+          id="username"
+          label="Username"
+          name="username"
+          value={username}
+          required
+          onChange={(e) => setUsername(e.target.value)} // update username state with value
+          type="text"
+          fullWidth
+          variant="standard"
+        />
+      </Modal>
       <div className="bg-gray-900 h-[100vh] min-w-full">
         <div className="flex h-full items-center justify-center">
           <div className="text-white text-center">
@@ -22,39 +45,14 @@ export default function Homepage() {
               </h1>
             </div>
             <div className="py-2">
-              <button
-                className="rounded-md font-semibold text-gray-900 bg-yellow-500 w-48 py-2"
-                onClick={handleOpenPlayModal}
-              >
+              <button className="rounded-md font-semibold text-gray-900 bg-yellow-500 w-48 py-2">
                 Play
               </button>
-              {isPlayModalOpen && (
-                <Modal
-                  modalName="Play Chess"
-                  handleCloseModal={handleClosePlayModal}
-                  data={
-                    <div className="text-center text-black">
-                      <div className="flex-col flex">
-                        <label>Name</label>
-                        <input type="text" className="rounded-md border w-40" />
-                      </div>
-                      <div className="flex flex-col">
-                        <label>Code Room:</label>
-                        <input type="text" className="rounded-md border w-40" />
-                      </div>
-                      <div>
-                        <button>Create Room</button>
-                        <button>Join Room</button>
-                      </div>
-                    </div>
-                  }
-                />
-              )}
             </div>
             <h1>OR</h1>
             <div className="py-2">
               <button className="rounded-md font-semibold text-gray-900 bg-yellow-500 w-48 py-2">
-                Spectate
+                Join
               </button>
             </div>
           </div>
