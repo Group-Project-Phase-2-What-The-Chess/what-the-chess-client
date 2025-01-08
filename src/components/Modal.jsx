@@ -1,24 +1,43 @@
 import PropTypes from "prop-types";
-import { MdClose } from "react-icons/md";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 
-export default function Modal({ modalName, handleCloseModal, data }) {
+export default function Modal({
+  open,
+  children,
+  title,
+  contentText,
+  handleContinue,
+}) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-500 bg-opacity-75 transition-all">
-      <div className="bg-white p-10 rounded w-[500px]">
-        <div className="flex justify-between items-center">
-          <h1 className="font-semibold text-black text-xl">{modalName}</h1>
-          <button id="close-add-btn" onClick={handleCloseModal}>
-            <MdClose className="text-red-500 text-2xl" />
-          </button>
-        </div>
-        <div className="pt-4 max-h-[500px] overflow-y-auto">{data}</div>
-      </div>
-    </div>
+    <Dialog open={open}>
+      {/*dialog container*/}
+      <DialogTitle>{title}</DialogTitle>
+      <DialogContent>
+        {/* Main body of modal/dialog */}
+        <DialogContentText>
+          {/* main text */}
+          {contentText}
+        </DialogContentText>
+        {children} {/* Other content */}
+      </DialogContent>
+      <DialogActions>
+        {/* Dialog action buttons */}
+        {/* Force users to make input without option to cancel */}
+        {/* <Button onClick={handleClose}>Cancel</Button> */}
+        <Button onClick={handleContinue}>Continue</Button>
+      </DialogActions>
+    </Dialog>
   );
 }
-
 Modal.propTypes = {
-  modalName: PropTypes.string.isRequired,
-  handleCloseModal: PropTypes.func.isRequired,
-  data: PropTypes.element,
+  open: PropTypes.bool,
+  children: PropTypes.element,
+  title: PropTypes.string,
+  contentText: PropTypes.string,
+  handleContinue: PropTypes.func,
 };

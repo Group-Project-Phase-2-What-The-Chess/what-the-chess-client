@@ -1,33 +1,6 @@
-import { Chess } from "chess.js";
-import io from "socket.io-client";
-import { useEffect, useState } from "react";
-import { Chessboard } from "react-chessboard";
-
-const socket = io("http://localhost:5000");
+import Chessgame from "../components/Chessgame";
 
 export default function InGamePage() {
-  const [game, setGame] = useState(new Chess());
-  const [gameMoves, setGameMoves] = useState([]);
-
-  useEffect(() => {
-    socket.on("move", (move) => {
-      game.ugly_move(move);
-      setGameMoves([...gameMoves, move]);
-      setGame(game);
-    });
-
-    return () => {
-      socket.off("move");
-    };
-  }, [gameMoves]);
-
-  const handleMove = (move) => {
-    const gameCopy = { ...game };
-    gameCopy.ugly_move(move);
-    setGame(gameCopy);
-    socket.emit("move", move);
-  };
-
   return (
     <>
       <div className="bg-gray-900 min-h-screen min-w-full">
@@ -44,8 +17,7 @@ export default function InGamePage() {
             </div>
             <div className="App">
               <div className="mx-auto w-[450px]">
-                <Chessboard position={game.fen()} />
-                <button onClick={() => handleMove("e2 to e4")}>Move</button>
+                <Chessgame />
               </div>
             </div>
             <div className="rounded-md h-[450px] w-[350px] bg-slate-600 px-4">
