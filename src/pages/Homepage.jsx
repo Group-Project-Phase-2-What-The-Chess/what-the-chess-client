@@ -1,44 +1,40 @@
-import { useState } from "react";
+import { TextField } from "@mui/material";
 import Modal from "../components/Modal";
-import { io } from "socket.io-client";
-import { useNavigate } from "react-router";
-
-const socket = io("http://localhost:5000");
+import { Socket } from "socket.io-client";
+import { useState } from "react";
 
 export default function Homepage() {
-  const [isSpectateModalOpen, setIsSpectateModalOpen] = useState(false);
-  const [roomCode, setRoomCode] = useState("");
-  const navigate = useNavigate();
+  const [username, setUsername] = useState("");
 
-  const handleCloseSpectateModal = () => {
-    setIsSpectateModalOpen(false);
-  };
-  const handleOpenSpectateModal = () => {
-    setIsSpectateModalOpen(true);
-  };
-
-  const handlePlay = () => {
-    const roomName = `room-${Math.random().toString(36).substr(2, 9)}`;
-    socket.emit("createRoom", { roomName });
-    navigate(`/game/${roomName}`);
-  };
-
-  const handleJoinRoom = () => {
-    if (!roomCode) {
-      alert("Please enter a room code!");
-      return;
-    }
-
-    // Emit event untuk join ke room yang ada
-    socket.emit("joinGame", { roomName: roomCode });
-    socket.on("error", (message) => {
-      alert(message);
-    });
-    navigate(`/game/${roomCode}`);
-  };
-
+  // indicates if a username has been submitted
+  const [usernameSubmitted, setUsernameSubmitted] = useState(false);
   return (
     <div>
+      <Modal
+        open={!usernameSubmitted} // leave open if username has not been selected
+        title="Pick a username" // Title of dialog
+        contentText="Please select a username" // content text of dialog
+        handleContinue={() => {
+          // fired when continue is clicked
+          if (!username) return; // if username hasn't been entered, do nothing
+          Socket.emit("username", username); // emit a websocket event called "username" with the username as data
+          setUsernameSubmitted(true); // indicate that username has been submitted
+        }}
+      >
+        <TextField // Input
+          autoFocus // automatically set focus on input (make it active).
+          margin="dense"
+          id="username"
+          label="Username"
+          name="username"
+          value={username}
+          required
+          onChange={(e) => setUsername(e.target.value)} // update username state with value
+          type="text"
+          fullWidth
+          variant="standard"
+        />
+      </Modal>
       <div className="bg-gray-900 h-[100vh] min-w-full">
         <div className="flex h-full items-center justify-center">
           <div className="text-white text-center">
@@ -49,50 +45,15 @@ export default function Homepage() {
               </h1>
             </div>
             <div className="py-2">
-              <button
-                className="rounded-md font-semibold text-gray-900 bg-yellow-500 w-48 py-2"
-                onClick={handlePlay}
-              >
+              <button className="rounded-md font-semibold text-gray-900 bg-yellow-500 w-48 py-2">
                 Play
               </button>
             </div>
             <h1>OR</h1>
             <div className="py-2">
-              <button
-                className="rounded-md font-semibold text-gray-900 bg-yellow-500 w-48 py-2"
-                onClick={handleOpenSpectateModal}
-              >
+              <button className="rounded-md font-semibold text-gray-900 bg-yellow-500 w-48 py-2">
                 Join
               </button>
-              {isSpectateModalOpen && (
-                <Modal
-                  modalName="Join Room"
-                  handleCloseModal={handleCloseSpectateModal}
-                  data={
-                    <div className="text-center text-black">
-                      <div className="flex flex-col gap-2 pt-4 py-2 items-center">
-                        <label className="font-semibold">Code Room</label>
-                        <input
-                          type="text"
-                          className="rounded-md outline-none focus:outline-none border border-black px-1 w-40"
-                          value={roomCode}
-                          onChange={(e) => setRoomCode(e.target.value)}
-                        />
-                      </div>
-                      <div className="pt-8 gap-2 flex w-full justify-center">
-                        <div>
-                          <button
-                            className="rounded-md bg-yellow-500 px-2 py-1"
-                            onClick={handleJoinRoom}
-                          >
-                            Join Room
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  }
-                />
-              )}
             </div>
           </div>
         </div>
