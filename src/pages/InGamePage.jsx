@@ -80,6 +80,12 @@ export default function InGamePage() {
   };
 
   useEffect(() => {
+    socket.on("spectatorDisconnected", (data) => {
+      setSpectators(data.spectators);
+    });
+  }, []);
+
+  useEffect(() => {
     socket.on("playerDisconnected", () => {
       setIsLeaveModalOpen(true);
     });
@@ -113,7 +119,9 @@ export default function InGamePage() {
     socket.on("move", (move) => {
       makeAMove(move); //
     });
-  }, [makeAMove]);
+  }, [makeAMove, spectators]);
+
+  console.log(spectators, "ini spectators");
 
   useEffect(() => {
     socket.on("closeRoom", ({ roomId }) => {
