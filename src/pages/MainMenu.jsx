@@ -11,7 +11,8 @@ export default function MainMenu() {
   const [roomError, setRoomError] = useState("");
   const [username, setUsername] = useState("");
   const [usernameSubmitted, setUsernameSubmitted] = useState(false);
-  const { setRoom, setPlayers, setOrientation } = useContext(GameContext);
+  const { setRoom, setPlayers, setOrientation, setSpectators } =
+    useContext(GameContext);
   const navigate = useNavigate();
 
   const handleCreateRoom = () => {
@@ -28,14 +29,13 @@ export default function MainMenu() {
 
     socket.emit("joinRoom", { roomId: roomInput }, (response) => {
       if (response.error) {
-        return setRoomError(response.message); // Menangani error jika ada
+        return setRoomError(response.message);
       }
 
-      console.log("response:", response);
-      // Jika berhasil, set data ke context
       setRoom(response?.roomId);
       setPlayers(response?.players);
-      setOrientation("black"); // Misalnya set orientation menjadi "black"
+      setSpectators(response?.spectators);
+      setOrientation(response.players.length > 2 ? "" : "black");
       setOpenModalJoinRoom(false);
       navigate("/ingame");
     });
