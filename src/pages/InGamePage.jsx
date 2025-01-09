@@ -5,6 +5,7 @@ import { GameContext } from "../contexts/game.context";
 import { socket } from "../utils/socketio";
 import Modal from "../components/Modal";
 import { useNavigate } from "react-router";
+import { GiQueenCrown } from "react-icons/gi";
 
 export default function InGamePage() {
   const chess = useMemo(() => new Chess(), []);
@@ -74,7 +75,6 @@ export default function InGamePage() {
   }
 
   const handleLeave = () => {
-    localStorage.removeItem("access");
     socket.emit("leaveRoom", { roomId: room });
     navigate("/main-menu");
     cleanup();
@@ -82,7 +82,6 @@ export default function InGamePage() {
 
   useEffect(() => {
     socket.on("spectatorDisconnected", (data) => {
-      localStorage.removeItem("access");
       setSpectators(data.spectators);
     });
   }, []);
@@ -95,7 +94,6 @@ export default function InGamePage() {
 
   const handleCloseModal = () => {
     setIsLeaveModalOpen(false);
-    localStorage.removeItem("access");
     cleanup();
     navigate("/main-menu");
   };
@@ -138,7 +136,8 @@ export default function InGamePage() {
       <div className="bg-gray-900 flex items-center min-h-screen min-w-full">
         <div className="container mx-auto w-[1200px]">
           <div className="flex flex-col justify-center items-center py-4">
-            <div className="py-2">
+            <div className="py-10">
+              <GiQueenCrown className="text-yellow-400 text-6xl w-full" />
               <h1 className="text-center text-4xl font-semibold text-white">
                 What The Chess
               </h1>
@@ -152,17 +151,21 @@ export default function InGamePage() {
               <div className="p-4 text-white">
                 {players && (
                   <>
-                    <ul className="text-2xl pb-2 font-semibold">Players :</ul>
+                    <ul className="text-xl pb-2 font-semibold">Players :</ul>
                     {players?.map((el) => (
-                      <li key={el.id}>{el.username}</li>
+                      <li key={el.id} className="text-sm">
+                        {el.username}
+                      </li>
                     ))}
                     {spectators.length !== 0 && (
                       <>
-                        <ul className="text-2xl font-semibold py-2">
+                        <ul className="text-xl font-semibold py-2">
                           Spectators :
                         </ul>
                         {spectators?.map((el) => (
-                          <li key={el.id}>{el.username}</li>
+                          <li key={el.id} className="text-sm">
+                            {el.username}
+                          </li>
                         ))}
                       </>
                     )}
@@ -190,9 +193,9 @@ export default function InGamePage() {
               }}
             />
           </div>
-          <div className="text-center p-4">
+          <div className="text-center p-5">
             <button
-              className="rounded-md bg-red-600 text-white px-3 py-1"
+              className="rounded-md bg-red-500 text-white font-semibold px-3 py-1"
               onClick={handleLeave}
             >
               Leave Game
