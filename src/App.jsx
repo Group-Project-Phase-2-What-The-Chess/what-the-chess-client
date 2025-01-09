@@ -3,6 +3,7 @@ import Homepage from "./pages/Homepage";
 import InGamePage from "./pages/InGamePage";
 import MainMenu from "./pages/MainMenu";
 import { GameProvider } from "./contexts/game.context";
+import UserGrantedPlayLayout from "./layouts/UserGrantedPlayLayout";
 
 function App() {
   return (
@@ -12,7 +13,9 @@ function App() {
           <Route path="/" element={<Homepage />} />
 
           <Route path="/main-menu" element={<MainMenu />} />
-          <Route path="/ingame" element={<InGamePage />} />
+          <Route element={<UserGrantedPlayLayout />}>
+            <Route path="/ingame" element={<InGamePage />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </GameProvider>
