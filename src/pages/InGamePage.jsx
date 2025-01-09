@@ -75,6 +75,7 @@ export default function InGamePage() {
   }
 
   const handleLeave = () => {
+    localStorage.removeItem("access");
     socket.emit("leaveRoom", { roomId: room });
     navigate("/main-menu");
     cleanup();
@@ -82,6 +83,7 @@ export default function InGamePage() {
 
   useEffect(() => {
     socket.on("spectatorDisconnected", (data) => {
+      localStorage.removeItem("access");
       setSpectators(data.spectators);
     });
   }, []);
@@ -93,6 +95,7 @@ export default function InGamePage() {
   }, []);
 
   const handleCloseModal = () => {
+    localStorage.removeItem("access");
     setIsLeaveModalOpen(false);
     cleanup();
     navigate("/main-menu");
