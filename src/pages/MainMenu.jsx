@@ -45,7 +45,7 @@ export default function MainMenu() {
     <div>
       <Modal
         open={!usernameSubmitted}
-        title="Enter Username"
+        title="Username"
         contentText="Please enter your username"
         handleContinue={() => {
           if (!username) return;
@@ -71,7 +71,7 @@ export default function MainMenu() {
       <Modal
         open={openModalJoinRoom}
         handleClose={() => setOpenModalJoinRoom(false)}
-        title="Code Room"
+        title="Join Room"
         contentText="Enter a valid room ID to join the room"
         handleContinue={handleContinueJoinRoom}
       >
