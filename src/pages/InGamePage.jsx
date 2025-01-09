@@ -121,8 +121,6 @@ export default function InGamePage() {
     });
   }, [makeAMove, spectators]);
 
-  console.log(spectators, "ini spectators");
-
   useEffect(() => {
     socket.on("closeRoom", ({ roomId }) => {
       console.log("closeRoom", roomId, room);

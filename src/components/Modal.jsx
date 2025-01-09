@@ -19,19 +19,12 @@ export default function Modal({
     content = (
       <div>
         <Dialog open={open}>
-          {/*dialog container*/}
           <DialogTitle>{title}</DialogTitle>
           <DialogContent>
-            {/* Main body of modal/dialog */}
-            <DialogContentText>
-              {/* main text */}
-              {contentText}
-            </DialogContentText>
-            {children} {/* Other content */}
+            <DialogContentText>{contentText}</DialogContentText>
+            {children}
           </DialogContent>
           <DialogActions>
-            {/* Dialog action buttons */}
-            {/* Force users to make input without option to cancel */}
             <Button onClick={handleClose}>Cancel</Button>
             <Button onClick={handleContinue}>Continue</Button>
           </DialogActions>
@@ -42,23 +35,15 @@ export default function Modal({
     content = (
       <div>
         <Dialog open={open}>
-          {/*dialog container*/}
           <DialogTitle>{title}</DialogTitle>
           <DialogContent>
-            {/* Main body of modal/dialog */}
-            <DialogContentText>
-              {/* main text */}
-              {contentText}
-            </DialogContentText>
-            {children} {/* Other content */}
+            <DialogContentText>{contentText}</DialogContentText>
+            {children}
           </DialogContent>
           <DialogActions>
-            {/* Dialog action buttons */}
-            {/* Force users to make input without option to cancel */}
             <Button onClick={handleContinue}>Continue</Button>
           </DialogActions>
         </Dialog>
-        ;
       </div>
     );
   }
