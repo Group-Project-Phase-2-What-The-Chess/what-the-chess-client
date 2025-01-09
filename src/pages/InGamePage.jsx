@@ -13,7 +13,6 @@ export default function InGamePage() {
   const { room, players, orientation, spectators } = useContext(GameContext);
   const { setRoom, setPlayers, setOrientation, setSpectators } =
     useContext(GameContext);
-  const [leave, setLeave] = useState(false);
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -74,20 +73,21 @@ export default function InGamePage() {
     return true;
   }
 
-  useEffect(() => {
-    socket.on("playerDisconnected", () => {
-      setIsLeaveModalOpen(true); // Membuka modal
-    });
+  const handleLeave = () => {
+    socket.emit("leaveRoom", { roomId: room });
+    navigate("/main-menu");
+  };
 
-    return () => {
-      socket.off("playerDisconnected"); // Cleanup listener saat komponen unmount
-    };
+  useEffect(() => {
+    socket.on("playerDisconnected", (player) => {
+      setOver(`${player.username} has disconnected`);
+    });
   }, []);
 
-  // Fungsi untuk menutup modal dan navigasi
   const handleCloseModal = () => {
     setIsLeaveModalOpen(false);
-    navigate("/main-menu"); // Navigasi ke halaman utama setelah modal ditutup
+    navigate("/main-menu");
+    cleanup();
   };
 
   const cleanup = useCallback(() => {
@@ -113,14 +113,6 @@ export default function InGamePage() {
       makeAMove(move); //
     });
   }, [makeAMove]);
-
-  useEffect(() => {
-    socket.on("playerDisconnected", (player) => {
-      setOver(`${player.username} has disconnected`);
-      cleanup();
-      navigate("/main-menu");
-    });
-  }, []);
 
   useEffect(() => {
     socket.on("closeRoom", ({ roomId }) => {
@@ -185,7 +177,10 @@ export default function InGamePage() {
             />
           </div>
           <div className="text-center p-4">
-            <button className="rounded-md bg-red-600 text-white px-3 py-1">
+            <button
+              className="rounded-md bg-red-600 text-white px-3 py-1"
+              onClick={handleLeave}
+            >
               Leave Game
             </button>
 
