@@ -4,6 +4,7 @@ import { useContext, useState } from "react";
 import { socket } from "../utils/socketio";
 import { GameContext } from "../contexts/game.context";
 import { useNavigate } from "react-router";
+import { GiQueenCrown } from "react-icons/gi";
 
 export default function MainMenu() {
   const [openModalJoinRoom, setOpenModalJoinRoom] = useState(false);
@@ -14,8 +15,10 @@ export default function MainMenu() {
   const { setRoom, setPlayers, setOrientation, setSpectators } =
     useContext(GameContext);
   const navigate = useNavigate();
+  const data = "granted";
 
   const handleCreateRoom = () => {
+    localStorage.setItem("access", data);
     socket.emit("createRoom", (r) => {
       console.log(r);
       setRoom(r);
@@ -31,6 +34,7 @@ export default function MainMenu() {
       if (response.error) {
         return setRoomError(response.message);
       }
+      localStorage.setItem("access", data);
 
       setRoom(response?.roomId);
       setPlayers(response?.players);
@@ -41,6 +45,11 @@ export default function MainMenu() {
     });
   };
 
+  const hanldeExitMenu = () => {
+    localStorage.removeItem("access", data);
+    navigate("/");
+  };
+
   return (
     <div>
       <Modal
@@ -48,7 +57,7 @@ export default function MainMenu() {
         title="Username"
         contentText="Please enter your username"
         handleContinue={() => {
-          if (!username) return;
+          if (!username) return localStorage.removeItem("access", data);
           socket.emit("username", username);
           setUsernameSubmitted(true);
         }}
@@ -97,6 +106,7 @@ export default function MainMenu() {
         <div className="flex h-full items-center justify-center">
           <div className="text-white text-center">
             <div className="text-center py-20">
+              <GiQueenCrown className="text-yellow-400 text-6xl w-full" />
               <h1 className="text-4xl font-bold">What The Chess</h1>
             </div>
             <div className="py-2">
@@ -107,13 +117,25 @@ export default function MainMenu() {
                 Create Room
               </button>
             </div>
-            <h1>OR</h1>
+            <div className="mt-2 grid grid-cols-3 items-center w-32 mx-auto text-gray-400 text-xs md:text-base">
+              <hr className="border-gray-400" />
+              <p className="text-center">OR</p>
+              <hr className="border-gray-400" />
+            </div>
             <div className="py-2">
               <button
                 className="rounded-md font-semibold text-gray-900 bg-yellow-500 w-48 py-2"
                 onClick={() => setOpenModalJoinRoom(true)}
               >
                 Join Room
+              </button>
+            </div>
+            <div className="p-20">
+              <button
+                className="rounded-md font-semibold text-gray-900 bg-red-500 w-48 py-2"
+                onClick={hanldeExitMenu}
+              >
+                Exit
               </button>
             </div>
           </div>
