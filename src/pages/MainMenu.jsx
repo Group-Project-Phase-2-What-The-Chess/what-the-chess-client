@@ -15,10 +15,8 @@ export default function MainMenu() {
   const { setRoom, setPlayers, setOrientation, setSpectators } =
     useContext(GameContext);
   const navigate = useNavigate();
-  const data = "granted";
 
   const handleCreateRoom = () => {
-    localStorage.setItem("access", data);
     socket.emit("createRoom", (r) => {
       console.log(r);
       setRoom(r);
@@ -34,7 +32,6 @@ export default function MainMenu() {
       if (response.error) {
         return setRoomError(response.message);
       }
-      localStorage.setItem("access", data);
 
       setRoom(response?.roomId);
       setPlayers(response?.players);
@@ -46,7 +43,6 @@ export default function MainMenu() {
   };
 
   const hanldeExitMenu = () => {
-    localStorage.removeItem("access", data);
     navigate("/");
   };
 
@@ -57,7 +53,7 @@ export default function MainMenu() {
         title="Username"
         contentText="Please enter your username"
         handleContinue={() => {
-          if (!username) return localStorage.removeItem("access", data);
+          if (!username) return;
           socket.emit("username", username);
           setUsernameSubmitted(true);
         }}
