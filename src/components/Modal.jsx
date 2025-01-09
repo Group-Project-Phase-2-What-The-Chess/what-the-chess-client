@@ -58,7 +58,6 @@ export default function Modal({
             <Button onClick={handleContinue}>Continue</Button>
           </DialogActions>
         </Dialog>
-        ;
       </div>
     );
   }
