@@ -10,8 +10,11 @@ export default function InGamePage() {
   const chess = useMemo(() => new Chess(), []);
   const [fen, setFen] = useState(chess.fen());
   const [over, setOver] = useState("");
-  const { room, players, orientation } = useContext(GameContext);
-  const { setRoom, setPlayers, setOrientation } = useContext(GameContext);
+  const { room, players, orientation, spectators } = useContext(GameContext);
+  const { setRoom, setPlayers, setOrientation, setSpectators } =
+    useContext(GameContext);
+  const [leave, setLeave] = useState(false);
+  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const makeAMove = useCallback(
@@ -44,7 +47,11 @@ export default function InGamePage() {
   );
 
   function onDrop(sourceSquare, targetSquare) {
-    if (chess.turn() !== orientation[0]) return false;
+    const isSpectator = spectators.some(
+      (spectator) => spectator.id === socket.id
+    );
+
+    if (isSpectator || chess.turn() !== orientation[0]) return false;
 
     if (players.length < 2) return false;
 
@@ -67,10 +74,20 @@ export default function InGamePage() {
     return true;
   }
 
-  const handleLeaveGame = () => {
-    setOver("Game over");
-    navigate("/main-menu");
-    cleanup();
+  useEffect(() => {
+    socket.on("playerDisconnected", () => {
+      setIsLeaveModalOpen(true); // Membuka modal
+    });
+
+    return () => {
+      socket.off("playerDisconnected"); // Cleanup listener saat komponen unmount
+    };
+  }, []);
+
+  // Fungsi untuk menutup modal dan navigasi
+  const handleCloseModal = () => {
+    setIsLeaveModalOpen(false);
+    navigate("/main-menu"); // Navigasi ke halaman utama setelah modal ditutup
   };
 
   const cleanup = useCallback(() => {
@@ -81,8 +98,13 @@ export default function InGamePage() {
 
   useEffect(() => {
     socket.on("opponentJoined", (roomData) => {
-      console.log("roomData", roomData);
       setPlayers(roomData.players);
+    });
+  }, []);
+
+  useEffect(() => {
+    socket.on("spectatorJoined", (roomData) => {
+      setSpectators(roomData.spectators);
     });
   }, []);
 
@@ -127,21 +149,17 @@ export default function InGamePage() {
             <div className="rounded-md h-[450px] w-[300px] bg-slate-800 px-4">
               <div className="p-4 text-white">
                 <ul className="text-2xl pb-2 font-semibold">Players :</ul>
-                {players && (
+                {players?.map((el) => (
+                  <li key={el.id}>{el.username}</li>
+                ))}
+                {spectators.length !== 0 && (
                   <>
-                    {players.slice(0, 2).map((el) => (
+                    <ul className="text-2xl font-semibold py-2">
+                      Spectators :
+                    </ul>
+                    {spectators?.map((el) => (
                       <li key={el.id}>{el.username}</li>
                     ))}
-                    {players.length > 2 && (
-                      <>
-                        <ul className="text-2xl font-semibold py-2">
-                          Spectators :
-                        </ul>
-                        {players.slice(2).map((el) => (
-                          <li key={el.id}>{el.username}</li>
-                        ))}
-                      </>
-                    )}
                   </>
                 )}
               </div>
@@ -155,7 +173,7 @@ export default function InGamePage() {
                 />
               </div>
             </div>
-            <Modal // Game Over CustomDialog
+            <Modal
               open={Boolean(over)}
               title={over}
               contentText={over}
@@ -167,12 +185,16 @@ export default function InGamePage() {
             />
           </div>
           <div className="text-center p-4">
-            <button
-              className="rounded-md bg-red-600 text-white px-3 py-1"
-              onClick={handleLeaveGame}
-            >
+            <button className="rounded-md bg-red-600 text-white px-3 py-1">
               Leave Game
             </button>
+
+            <Modal
+              open={isLeaveModalOpen}
+              title="You Win !"
+              contentText="Opponent leave the room"
+              handleContinue={handleCloseModal}
+            />
           </div>
         </div>
       </div>
