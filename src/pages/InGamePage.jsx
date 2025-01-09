@@ -206,8 +206,8 @@ export default function InGamePage() {
 
             <Modal
               open={isLeaveModalOpen}
-              title="You Win !"
-              contentText="Opponent leave the room"
+              title="Game Over !"
+              contentText="Some player leave the match"
               handleContinue={handleCloseModal}
             />
           </div>
