@@ -76,18 +76,25 @@ export default function InGamePage() {
   const handleLeave = () => {
     socket.emit("leaveRoom", { roomId: room });
     navigate("/main-menu");
+    cleanup();
   };
 
   useEffect(() => {
-    socket.on("playerDisconnected", (player) => {
-      setOver(`${player.username} has disconnected`);
+    socket.on("spectatorDisconnected", (data) => {
+      setSpectators(data.spectators);
+    });
+  }, []);
+
+  useEffect(() => {
+    socket.on("playerDisconnected", () => {
+      setIsLeaveModalOpen(true);
     });
   }, []);
 
   const handleCloseModal = () => {
     setIsLeaveModalOpen(false);
-    navigate("/main-menu");
     cleanup();
+    navigate("/main-menu");
   };
 
   const cleanup = useCallback(() => {
@@ -112,7 +119,9 @@ export default function InGamePage() {
     socket.on("move", (move) => {
       makeAMove(move); //
     });
-  }, [makeAMove]);
+  }, [makeAMove, spectators]);
+
+  console.log(spectators, "ini spectators");
 
   useEffect(() => {
     socket.on("closeRoom", ({ roomId }) => {
@@ -140,18 +149,22 @@ export default function InGamePage() {
           <div className="flex justify-center items-center gap-x-4">
             <div className="rounded-md h-[450px] w-[300px] bg-slate-800 px-4">
               <div className="p-4 text-white">
-                <ul className="text-2xl pb-2 font-semibold">Players :</ul>
-                {players?.map((el) => (
-                  <li key={el.id}>{el.username}</li>
-                ))}
-                {spectators.length !== 0 && (
+                {players && (
                   <>
-                    <ul className="text-2xl font-semibold py-2">
-                      Spectators :
-                    </ul>
-                    {spectators?.map((el) => (
+                    <ul className="text-2xl pb-2 font-semibold">Players :</ul>
+                    {players?.map((el) => (
                       <li key={el.id}>{el.username}</li>
                     ))}
+                    {spectators.length !== 0 && (
+                      <>
+                        <ul className="text-2xl font-semibold py-2">
+                          Spectators :
+                        </ul>
+                        {spectators?.map((el) => (
+                          <li key={el.id}>{el.username}</li>
+                        ))}
+                      </>
+                    )}
                   </>
                 )}
               </div>
